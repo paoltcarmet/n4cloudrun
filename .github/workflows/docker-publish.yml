@@ -1,10 +1,9 @@
 name: Build and Push Docker image
 
 on:
-  workflow_dispatch: {}   # <-- manual run
+  workflow_dispatch: {}   # manual run from Actions tab
   # push:
-  #   branches:
-  #     - main
+  #   branches: [ main ]  # (လိုချင်ရင် enable)
 
 jobs:
   build:
