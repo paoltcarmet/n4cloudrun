@@ -1,19 +1,27 @@
 #!/bin/sh
-set -e
+set -ex
+: "${PORT:=8080}"  # ensure PORT
 
-# Apply env to nginx conf
-envsubst '${PORT} ${VLESS_PATH}' < /etc/nginx/http.d/default.conf.tpl > /etc/nginx/http.d/default.conf
+# render nginx conf from template
+envsubst '${PORT} ${VLESS_PATH}' \
+  < /etc/nginx/http.d/default.conf.tpl \
+  > /etc/nginx/http.d/default.conf
 
-# Optionally override UUID/Path in Xray config from envs
+# show final conf (debug in logs)
+echo "---- /etc/nginx/http.d/default.conf ----"
+cat /etc/nginx/http.d/default.conf
+
+# override xray settings from env
 if [ -n "${UUID}" ]; then
-  sed -i "s#\"id\": \".*\"#\"id\": \"${UUID}\"#g" /etc/xray/config.json
+  sed -i 's#"id": ".*"#"id": "'"${UUID}"'"#' /etc/xray/config.json
 fi
 if [ -n "${VLESS_PATH}" ]; then
-  sed -i "s#\"path\": \"/[^\"]*\"#\"path\": \"/${VLESS_PATH}\"#g" /etc/xray/config.json
+  sed -i 's#"path": "/[^"]*"#"path": "/'"${VLESS_PATH}"'"#' /etc/xray/config.json
 fi
 
-# Show effective settings
 echo "[entrypoint] PORT=${PORT} VLESS_PATH=${VLESS_PATH} UUID=${UUID}"
 
-# Start supervisor (nginx + xray)
+# optional: config test (won't stop boot)
+nginx -t || true
+
 exec /usr/bin/supervisord -c /etc/supervisord.conf
