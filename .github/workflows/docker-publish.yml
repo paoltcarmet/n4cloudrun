@@ -1,14 +1,13 @@
 name: Build and Push Docker image
 
 on:
-  workflow_dispatch: {}   # manual run from Actions tab
+  workflow_dispatch: {}   # Manual run from Actions tab
   # push:
-  #   branches: [ main ]  # (လိုချင်ရင် enable)
+  #   branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,5 +26,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: n4vip/freecr:latest   # <- သင့် Docker Hub repo/tag
+          tags: n4vip/freecr:latest
           provenance: false
